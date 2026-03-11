@@ -1,8 +1,18 @@
-# 🧠 AI Retail Data Analyst
+# 🧠 Automated Data Quality & Analysis Engine
 
-An **AI-powered retail analytics assistant** built with **Python and Streamlit** that automatically cleans datasets, detects relationships, identifies KPIs, generates charts, and produces business insights.
+An intelligent data analysis assistant that automatically detects data quality issues, applies cleaning strategies, and prepares datasets for analysis and visualization.
 
-The tool simulates the workflow of a **data analyst**, turning raw datasets into **actionable insights with minimal manual work**.
+## Overview
+
+Real-world datasets are rarely clean.
+
+Missing values, inconsistent categories, duplicate records, and formatting issues often make data analysis slow and frustrating.
+
+The **Automated Data Quality & Analysis Engine** is designed to solve this problem by automatically profiling datasets, detecting quality issues, suggesting cleaning strategies, and generating insights.
+
+The tool simulates how a data analyst prepares messy datasets before performing analysis.
+
+It enables users to upload datasets and quickly transform them into analysis-ready data.
 
 ---
 
