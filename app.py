@@ -1,5 +1,14 @@
 import streamlit as st
 import pandas as pd
+import plotly.io as pio
+import subprocess
+import sys
+
+# Ensure Kaleido has Chrome available
+try:
+    pio.kaleido.scope.chromium_executable
+except:
+    subprocess.run([sys.executable, "-m", "plotly_get_chrome"], check=False)
 
 from models.dataset_context import DatasetContext
 
