@@ -149,6 +149,17 @@ Revenue dropped sharply in March
 
 ---
 
+## Key Features
+
+• Automatic dataset profiling  
+• Data quality issue detection  
+• Missing value detection  
+• Duplicate record identification  
+• Category normalization  
+• Automated cleaning suggestions  
+• Dataset preparation for analysis  
+• Built-in visual insights
+
 # 🧱 Architecture
 
 ```
