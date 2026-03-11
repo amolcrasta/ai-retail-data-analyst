@@ -8,8 +8,6 @@ The tool simulates the workflow of a **data analyst**, turning raw datasets into
 
 # 🚀 Live Demo
 
-*(Add after deployment)*
-
 ```
 https://ai-retail-data-analyst.onrender.com
 ```
