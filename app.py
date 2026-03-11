@@ -15,6 +15,7 @@ from modules.column_logic_engine import ColumnLogicEngine
 from modules.story_engine import StoryEngine
 from modules.root_cause_engine import RootCauseEngine
 from modules.anomaly_engine import AnomalyEngine
+from modules.pdf_report_generator import PDFReportGenerator
 
 
 # -----------------------------------------------------
@@ -22,26 +23,31 @@ from modules.anomaly_engine import AnomalyEngine
 # -----------------------------------------------------
 
 st.set_page_config(
-    page_title="AI Retail Data Analyst",
+    page_title="Automated Data Quality & Analysis Engine",
     page_icon="🧠",
     layout="wide"
 )
 
-st.title("🧠 AI Retail Data Analyst")
+st.title("🧠 Automated Data Quality & Analysis Engine")
 
 st.markdown(
 """
 Upload retail datasets and automatically generate insights using AI-powered
-data cleaning, relationship detection, KPI discovery, and automated analytics.
+data cleaning, relationship detection, KPI discovery, automated analytics,
+and downloadable AI-generated reports.
 """
 )
+
+# -----------------------------------------------------
+# Sidebar Header
+# -----------------------------------------------------
 
 st.sidebar.markdown("## Navigation")
 st.sidebar.markdown("---")
 
 st.sidebar.markdown(
 """
-### AI Retail Data Analyst
+### Automated Data Quality & Analysis Engine
 
 Automated analytics assistant for retail datasets.
 """
@@ -180,7 +186,6 @@ elif menu == "Dataset Explorer":
 
     else:
 
-        # Dataset Preview
         with st.expander("📊 Dataset Preview", expanded=True):
 
             for i, df in enumerate(context.datasets):
@@ -196,7 +201,6 @@ elif menu == "Dataset Explorer":
                 st.dataframe(df.head(preview_rows), use_container_width=True)
 
 
-        # Run Pipeline
         with st.expander("🤖 Run AI Processing Pipeline"):
 
             if st.button("Process Data"):
@@ -227,7 +231,6 @@ elif menu == "Dataset Explorer":
                 st.success("AI processing completed")
 
 
-        # Joined Dataset
         if hasattr(context, "cleaned_dataframe") and context.cleaned_dataframe is not None:
 
             df = context.cleaned_dataframe
@@ -239,12 +242,7 @@ elif menu == "Dataset Explorer":
 
                 st.dataframe(df.head(200), use_container_width=True)
 
-                st.info(
-                    "Create new metrics such as revenue or margin using the calculated column tool below."
-                )
 
-
-            # Create Calculated Column
             with st.expander("🧮 Create Calculated Column"):
 
                 logic_engine = ColumnLogicEngine()
@@ -257,32 +255,26 @@ elif menu == "Dataset Explorer":
 
                     try:
 
-                        if new_col_name == "":
-                            st.warning("Column name required")
+                        df = logic_engine.apply_logic(
+                            df,
+                            new_col_name,
+                            expression
+                        )
 
-                        else:
+                        context.cleaned_dataframe = df
 
-                            df = logic_engine.apply_logic(
-                                df,
-                                new_col_name,
-                                expression
-                            )
+                        context.transformation_history.append(
+                            f"User created column '{new_col_name}' using logic: {expression}"
+                        )
 
-                            context.cleaned_dataframe = df
+                        st.success("Column created successfully")
 
-                            context.transformation_history.append(
-                                f"User created column '{new_col_name}' using logic: {expression}"
-                            )
-
-                            st.success("Column created successfully")
-
-                            st.rerun()
+                        st.rerun()
 
                     except:
                         st.error("Invalid formula")
 
 
-            # Remove Column
             with st.expander("🛠 Remove Column"):
 
                 remove_col = st.selectbox(
@@ -309,14 +301,12 @@ elif menu == "Dataset Explorer":
                         st.rerun()
 
 
-            # Cleaning Summary
             with st.expander("🧹 AI Cleaning Summary"):
 
                 for step in context.transformation_history:
                     st.write("•", step)
 
 
-            # KPI Detection
             with st.expander("📈 Detected KPIs"):
 
                 kpis = detect_kpis(df)
@@ -346,7 +336,6 @@ elif menu == "Chart Builder and Insights":
         )
 
 
-        # AI Story
         with st.expander("📖 AI Data Story", expanded=True):
 
             story_engine = StoryEngine()
@@ -357,7 +346,6 @@ elif menu == "Chart Builder and Insights":
                 st.write("•", line)
 
 
-        # Root Cause
         with st.expander("🔍 Root Cause Analysis"):
 
             rca_engine = RootCauseEngine()
@@ -368,7 +356,6 @@ elif menu == "Chart Builder and Insights":
                 st.write("•", insight)
 
 
-        # Anomaly Detection
         with st.expander("⚠️ Anomaly Detection"):
 
             anomaly_engine = AnomalyEngine()
@@ -379,7 +366,6 @@ elif menu == "Chart Builder and Insights":
                 st.write("•", insight)
 
 
-        # Charts
         with st.expander("📊 Top 10 Most Relevant Charts", expanded=True):
 
             viz_engine = VisualizationEngine()
@@ -398,3 +384,45 @@ elif menu == "Chart Builder and Insights":
                 )
 
                 st.info(insights[i])
+
+
+# =====================================================
+# REPORT DOWNLOAD
+# =====================================================
+
+context = st.session_state.get("context")
+
+st.sidebar.markdown("---")
+st.sidebar.markdown("### Reports")
+
+if (
+    context is not None
+    and hasattr(context, "cleaned_dataframe")
+    and context.cleaned_dataframe is not None
+):
+
+    try:
+
+        if not hasattr(context, "visualizations") or context.visualizations is None:
+
+            viz_engine = VisualizationEngine()
+            context = viz_engine.run(context)
+
+        pdf_generator = PDFReportGenerator()
+
+        pdf_buffer = pdf_generator.generate_report(context)
+
+        st.sidebar.download_button(
+            label="📄 Download Analytics Report",
+            data=pdf_buffer,
+            file_name="analytics_report.pdf",
+            mime="application/pdf"
+        )
+
+    except Exception as e:
+
+        st.sidebar.error(e)
+
+else:
+
+    st.sidebar.info("Process dataset to enable report download")
